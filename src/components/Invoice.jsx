@@ -10,6 +10,7 @@ import Spinner from '@cloudscape-design/components/spinner';
 import Tabs from '@cloudscape-design/components/tabs';
 import { generateClient } from 'aws-amplify/api';
 
+// Create API client
 const client = generateClient();
 
 // Column definitions (no changes needed here)
@@ -119,13 +120,14 @@ const Invoice = () => {
   const [loading, setLoading] = useState(true);
   const [activeTabId, setActiveTabId] = useState('invoice-details');
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   // Load all invoices from DynamoDB
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
         console.log("Fetching all invoices from API...");
-        const response = await API.graphql({
+        const response = await client.graphql({
           query: listInvoicesQuery
         });
         
@@ -134,6 +136,7 @@ const Invoice = () => {
         setAllInvoices(invoices);
       } catch (error) {
         console.error("Error fetching invoices:", error);
+        setError(error);
       }
     };
 
@@ -155,7 +158,7 @@ const Invoice = () => {
         
         if (invoiceNumber) {
           // Fetch specific invoice from API
-          const response = await API.graphql({
+          const response = await client.graphql({
             query: getInvoiceQuery,
             variables: { Invoice_Number: invoiceNumber }
           });
@@ -177,6 +180,7 @@ const Invoice = () => {
         document.title = `Invoice ${selectedInvoice.Invoice_Number}`;
       } catch (error) {
         console.error("Error fetching invoice details:", error);
+        setError(error);
       } finally {
         setLoading(false);
       }
@@ -258,6 +262,16 @@ const Invoice = () => {
         <Spinner size="large" />
         <Box variant="h3" padding={{ top: 'l' }}>
           Loading invoice data...
+        </Box>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box textAlign="center" padding={{ top: 'xxxl' }}>
+        <Box variant="h3" padding={{ top: 'l' }} color="text-status-error">
+          Error loading data: {error.message}
         </Box>
       </Box>
     );

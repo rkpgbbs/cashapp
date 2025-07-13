@@ -5,6 +5,7 @@ import Select from '@cloudscape-design/components/select';
 import SpaceBetween from '@cloudscape-design/components/space-between';
 import { generateClient } from 'aws-amplify/api';
 
+// Create API client
 const client = generateClient();
 
 // Search dropdown options
@@ -48,7 +49,7 @@ const SearchComponent = ({ searchDropdown, setSearchDropdown }) => {
         const fetchInvoiceData = async () => {
             try {
                 console.log("SearchComponent: Fetching invoices from API");
-                const response = await API.graphql({
+                const response = await client.graphql({
                     query: listInvoicesQuery
                 });
                 
