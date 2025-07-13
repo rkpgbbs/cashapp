@@ -23,11 +23,12 @@ const listInvoicesQuery = `
   query ListInvoices {
     listInvoices {
       items {
-        Invoice_Number    // For invoice search
-        Statement_Number  // For statement search
-        Name             // For customer search
-        Status           // For status display
-        Order_Number     // For order search
+        Invoice_Number
+        Statement_Number
+        Name
+        Customer_Number
+        Account_ID
+        Order_Number
       }
     }
   }
@@ -83,11 +84,12 @@ if (searchType === 'all') {
                 return false;
             })
             .slice(0, 10) // Limit to 10 suggestions
-            .map(item => ({
-                value: item.Invoice_Number,
-                label: `${item.Invoice_Number} - ${item.customerName} - ${item.statementType} - ${item.originalAmount} ${item.currency}`,
-                description: `${item.invoiceDate} | ${item.status} | ${item.country}`
-            }));
+	.map(item => ({
+    value: item.Invoice_Number,
+    label: `${item.Invoice_Number} | Customer: ${item.Name} | Cust#: ${item.Customer_Number} | Acc: ${item.Account_ID} | Order#: ${item.Order_Number}`,
+}));
+
+
     };
 
     const handleSearchChange = (event) => {
