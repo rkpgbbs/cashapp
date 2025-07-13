@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Autosuggest from '@cloudscape-design/components/autosuggest';
 import Select from '@cloudscape-design/components/select';
 import SpaceBetween from '@cloudscape-design/components/space-between';
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+
+const client = generateClient();
 
 // Search dropdown options
 const searchOptions = [

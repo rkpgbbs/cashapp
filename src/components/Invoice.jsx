@@ -8,7 +8,9 @@ import SpaceBetween from '@cloudscape-design/components/space-between';
 import Container from '@cloudscape-design/components/container';
 import Spinner from '@cloudscape-design/components/spinner';
 import Tabs from '@cloudscape-design/components/tabs';
-import { API } from 'aws-amplify';
+import { generateClient } from 'aws-amplify/api';
+
+const client = generateClient();
 
 // Column definitions (no changes needed here)
 const invoiceHeaderColumns = [
