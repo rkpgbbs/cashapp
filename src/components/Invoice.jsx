@@ -125,19 +125,21 @@ const Invoice = () => {
   // Load all invoices from DynamoDB
   useEffect(() => {
     const fetchInvoices = async () => {
-      try {
-        console.log("Fetching all invoices from API...");
-        const response = await client.graphql({
-          query: listInvoicesQuery
-        });
-        
-        const invoices = response.data.listInvoices.items;
-        console.log(`Fetched ${invoices.length} invoices from API`);
-        setAllInvoices(invoices);
-      } catch (error) {
-        console.error("Error fetching invoices:", error);
-        setError(error);
-      }
+	try {
+		console.log("Fetching all invoices from API...");
+		const response = await client.graphql({
+			query: listInvoicesQuery
+		});
+		
+		const invoices = response.data.listInvoices.items;
+		console.log(`Fetched ${invoices.length} invoices from API`);
+		setAllInvoices(invoices);
+	} catch (error) {
+		console.error("Error fetching invoices:", error);
+		console.error('Invoice fetchAll Error details:', JSON.stringify(error, null, 2));
+		setError(error);
+	}
+
     };
 
     fetchInvoices();
@@ -153,35 +155,37 @@ const Invoice = () => {
       const invoiceNumber = params.get('invoice_number');
       console.log(`Looking for invoice: ${invoiceNumber}`);
       
-      try {
-        let selectedInvoice;
-        
-        if (invoiceNumber) {
-          // Fetch specific invoice from API
-          const response = await client.graphql({
-            query: getInvoiceQuery,
-            variables: { Invoice_Number: invoiceNumber }
-          });
-          
-          selectedInvoice = response.data.getInvoice;
-          console.log("Fetched invoice details:", selectedInvoice);
-        }
-        
-        // If no invoice found or no invoice number provided, use the first one
-        if (!selectedInvoice) {
-          selectedInvoice = allInvoices[0];
-          console.log("Using first invoice:", selectedInvoice);
-          // Update URL to reflect the selected invoice
-          navigate(`/invoice?invoice_number=${selectedInvoice.Invoice_Number}`, { replace: true });
-        }
-        
-        setInvoiceData(selectedInvoice);
-        setInvoiceLineItems(sampleLineItems); // In the future, fetch real line items
-        document.title = `Invoice ${selectedInvoice.Invoice_Number}`;
-      } catch (error) {
-        console.error("Error fetching invoice details:", error);
-        setError(error);
-      } finally {
+	try {
+		let selectedInvoice;
+		
+		if (invoiceNumber) {
+			// Fetch specific invoice from API
+			const response = await client.graphql({
+				query: getInvoiceQuery,
+				variables: { Invoice_Number: invoiceNumber }
+			});
+			
+			selectedInvoice = response.data.getInvoice;
+			console.log("Fetched invoice details:", selectedInvoice);
+		}
+		
+		// If no invoice found or no invoice number provided, use the first one
+		if (!selectedInvoice) {
+			selectedInvoice = allInvoices[0];
+			console.log("Using first invoice:", selectedInvoice);
+			// Update URL to reflect the selected invoice
+			navigate(`/invoice?invoice_number=${selectedInvoice.Invoice_Number}`, { replace: true });
+		}
+		
+		setInvoiceData(selectedInvoice);
+		setInvoiceLineItems(sampleLineItems);
+		document.title = `Invoice ${selectedInvoice.Invoice_Number}`;
+	} catch (error) {
+		console.error("Error fetching invoice details:", error);
+		console.error('Invoice specific Error details:', JSON.stringify(error, null, 2));
+		setError(error);
+	}
+ finally {
         setLoading(false);
       }
     };

@@ -47,18 +47,20 @@ const SearchComponent = ({ searchDropdown, setSearchDropdown }) => {
     // Load invoice data from API
     useEffect(() => {
         const fetchInvoiceData = async () => {
-            try {
-                console.log("SearchComponent: Fetching invoices from API");
-                const response = await client.graphql({
-                    query: listInvoicesQuery
-                });
-                
-                const invoices = response.data.listInvoices.items;
-                console.log(`SearchComponent: Fetched ${invoices.length} invoices`);
-                setInvoiceData(invoices);
-            } catch (error) {
-                console.error('SearchComponent: Error loading invoice data:', error);
-            }
+			try {
+				console.log("SearchComponent: Fetching invoices from API");
+				const response = await client.graphql({
+					query: listInvoicesQuery
+				});
+				
+				const invoices = response.data.listInvoices.items;
+				console.log(`SearchComponent: Fetched ${invoices.length} invoices`);
+				setInvoiceData(invoices);
+			} catch (error) {
+				console.error('SearchComponent: Error loading invoice data:', error);
+				console.error('SearchComponent Error details:', JSON.stringify(error, null, 2));
+			}
+
         };
 
         fetchInvoiceData();
