@@ -1,0 +1,128 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Uploader</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; background-color: #f4f4f9; }
+        .container { max-width: 600px; margin: 40px auto; padding: 20px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; }
+        .upload-section { margin-top: 20px; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: #555; }
+        input[type="file"] { display: block; width: 100%; padding: 8px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 12px 20px; font-size: 16px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; transition: background-color 0.3s; }
+        button:disabled { background-color: #a0a0a0; cursor: not-allowed; }
+        .status { margin-top: 15px; font-weight: bold; text-align: center; padding: 10px; border-radius: 4px; }
+        .status.success { background-color: #d4edda; color: #155724; }
+        .status.error { background-color: #f8d7da; color: #721c24; }
+        .status.info { background-color: #cce5ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Invoice Data Uploader</h1>
+        <p>This tool will upload all records from your <code>Invoice.json</code> file to your Firestore database.</p>
+
+        <div class="upload-section">
+            <label for="invoice-file">1. Select your <code>Invoice.json</code> file:</label>
+            <input type="file" id="invoice-file" accept=".json">
+            <button id="invoice-btn" onclick="uploadFile('invoices', 'invoice-file', 'invoice-btn')">Upload Invoices to Firebase</button>
+            <div id="invoices-status" class="status"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6GWq9lu9btPu_PsH_ii1tm9MIdQjjN3o",
+            authDomain: "cash-application-d4588.firebaseapp.com",
+            projectId: "cash-application-d4588",
+            storageBucket: "cash-application-d4588.firebasestorage.app",
+            messagingSenderId: "988432046524",
+            appId: "1:988432046524:web:e77116ef8956ee93cbb3b9",
+            measurementId: "G-S7C87QKJ2W"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function uploadFile(collectionName, fileInputId, buttonId) {
+            const fileInput = document.getElementById(fileInputId);
+            const statusDiv = document.getElementById(`${collectionName}-status`);
+            const button = document.getElementById(buttonId);
+
+            if (fileInput.files.length === 0) {
+                statusDiv.textContent = "Please select a file first.";
+                statusDiv.className = "status error";
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function(event) {
+                let data;
+                try {
+                    data = JSON.parse(event.target.result);
+                } catch (e) {
+                    statusDiv.textContent = "Error: Could not parse JSON. Please ensure the file is valid.";
+                    statusDiv.className = "status error";
+                    console.error(e);
+                    button.disabled = false;
+                    return;
+                }
+
+                if (!Array.isArray(data)) {
+                    statusDiv.textContent = "Error: JSON data must be an array of objects.";
+                    statusDiv.className = "status error";
+                    button.disabled = false;
+                    return;
+                }
+
+                statusDiv.textContent = `Uploading ${data.length} records to '${collectionName}'...`;
+                statusDiv.className = "status info";
+                console.log(`Starting upload to ${collectionName}...`);
+                const collectionRef = db.collection(collectionName);
+                let count = 0;
+                for (const item of data) {
+                    try {
+                        await collectionRef.add(item);
+                        count++;
+                        if (count % 10 === 0) { // Update status every 10 records
+                           console.log(`Added document ${count} of ${data.length} to ${collectionName}`);
+                        }
+                    } catch (error) {
+                        console.error(`Error adding document to ${collectionName}: `, error, item);
+                        statusDiv.innerHTML = `Error uploading to ${collectionName} at record ${count + 1}. See console for details.`;
+                        statusDiv.className = "status error";
+                        button.disabled = false;
+                        return;
+                    }
+                }
+                statusDiv.innerHTML = `Successfully uploaded ${count} documents to the '${collectionName}' collection!`;
+                statusDiv.className = "status success";
+                console.log(`Finished uploading to ${collectionName}`);
+                button.disabled = false;
+            };
+
+            reader.onerror = function() {
+                statusDiv.textContent = "Error reading file.";
+                statusDiv.className = "status error";
+                button.disabled = false;
+            };
+
+            button.disabled = true;
+            statusDiv.textContent = "Reading file...";
+            statusDiv.className = "status info";
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
