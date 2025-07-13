@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ContentLayout from '@cloudscape-design/components/content-layout';
@@ -36,6 +35,54 @@ const invoiceLineColumns = [
   { id: 'shippingCharge', header: 'Shipping Charge', cell: (item) => item["Shipping Charge"], width: '10%' },
 ];
 
+// Sample data for development
+const sampleInvoiceData = {
+  "Invoice_Number": "FR24131AEI",
+  "Statement Number": "STM-1293-H03",
+  "Statement Key": "defg-hijk-1234",
+  "Statement Type": "Invoice",
+  "Invoice Date": "15-Apr-24",
+  "Due Date": "14-Jun-24",
+  "Customer number": "FRTS63KMPA22",
+  "Account ID": 2837465928,
+  "Name": "Vixor Jabbix SARL",
+  "Original Amount": 591.36,
+  "Open Amount": 591.36,
+  "Cur": "EUR",
+  "Status": "Open",
+  "Functional Amount": 591.36,
+  "Functional Open Amount": 591.36,
+  "FX Cur": "EUR",
+  "FX Rate": 1,
+  "Net Term": 60,
+  "Country": "FR"
+};
+
+const sampleLineItems = [
+  {
+    "line_number": 1,
+    "order_number": "ORD-061-1",
+    "product_description": "Premium Service Package",
+    "quantity": 2,
+    "unit_price": 250,
+    "Principal Amount": 500,
+    "Discount": -15,
+    "Tax": 10,
+    "Shipping Charge": 5
+  },
+  {
+    "line_number": 2,
+    "order_number": "ORD-061-2",
+    "product_description": "Maintenance Contract",
+    "quantity": 1,
+    "unit_price": 28,
+    "Principal Amount": 28,
+    "Discount": -0.84,
+    "Tax": 0.56,
+    "Shipping Charge": 0
+  }
+];
+
 const Invoice = () => {
   const location = useLocation();
   const [invoiceData, setInvoiceData] = useState(null);
@@ -47,48 +94,29 @@ const Invoice = () => {
   useEffect(() => {
     const fetchInvoiceData = async () => {
       setLoading(true);
-      const params = new URLSearchParams(location.search);
-      const invoiceNumber = params.get('invoice_number');
       
-      const invoicesRef = collection(db, "invoices");
-      let q;
-
-      if (invoiceNumber) {
-        // Query for the specific invoice
-        q = query(invoicesRef, where("Invoice_Number", "==", invoiceNumber));
-      } else {
-        // If no invoice number, fetch the first one to display something
-        q = query(invoicesRef, limit(1));
-      }
-
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const selectedInvoice = querySnapshot.docs[0].data();
-        setInvoiceData(selectedInvoice);
-        document.title = `Invoice ${selectedInvoice.Invoice_Number}`;
-
-        // If the URL didn't have an invoice number, update it now
+      // Simulate API call delay
+      setTimeout(() => {
+        // Use sample data for now - this will be replaced with Amplify API calls later
+        setInvoiceData(sampleInvoiceData);
+        setInvoiceLineItems(sampleLineItems);
+        
+        // Update document title
+        document.title = `Invoice ${sampleInvoiceData.Invoice_Number}`;
+        
+        // Update URL if needed
+        const params = new URLSearchParams(location.search);
+        const invoiceNumber = params.get('invoice_number');
         if (!invoiceNumber) {
-            navigate(`/invoice?invoice_number=${selectedInvoice.Invoice_Number}`, { replace: true });
+          navigate(`/invoice?invoice_number=${sampleInvoiceData.Invoice_Number}`, { replace: true });
         }
-
-        // Fetch line items for this invoice
-        const lineItemsRef = collection(db, "invoice_line_items");
-        const lineItemsQuery = query(lineItemsRef, where("invoice_number", "==", selectedInvoice.Invoice_Number));
-        const lineItemsSnapshot = await getDocs(lineItemsQuery);
-        const filteredLineItems = lineItemsSnapshot.docs.map(doc => doc.data());
-        setInvoiceLineItems(filteredLineItems);
-
-      } else {
-        console.warn(`Invoice with number ${invoiceNumber} not found`);
-      }
-      setLoading(false);
+        
+        setLoading(false);
+      }, 1000);
     };
 
     fetchInvoiceData();
   }, [location.search, navigate]);
-
-  // The rest of the component remains largely the same...
 
   const headerComponent = useMemo(() => {
     if (!invoiceData) {
@@ -162,7 +190,7 @@ const Invoice = () => {
       <Box textAlign="center" padding={{ top: 'xxxl' }}>
         <Spinner size="large" />
         <Box variant="h3" padding={{ top: 'l' }}>
-          Loading invoice data from Firebase...
+          Loading invoice data...
         </Box>
       </Box>
     );
