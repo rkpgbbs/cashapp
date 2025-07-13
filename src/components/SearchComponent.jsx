@@ -23,20 +23,16 @@ const listInvoicesQuery = `
   query ListInvoices {
     listInvoices {
       items {
-        Invoice_Number
-        statementNumber
-        statementType
-        invoiceDate
-        customerName
-        originalAmount
-        currency
-        status
-        country
-        orderNumber
+        Invoice_Number    // For invoice search
+        Statement_Number  // For statement search
+        Name             // For customer search
+        Status           // For status display
+        Order_Number     // For order search
       }
     }
   }
 `;
+
 
 const SearchComponent = ({ searchDropdown, setSearchDropdown }) => {
     const [searchValue, setSearchValue] = useState('');
@@ -75,24 +71,15 @@ const SearchComponent = ({ searchDropdown, setSearchDropdown }) => {
 
         return invoiceData
             .filter(item => {
-                if (searchType === 'all') {
-                    return (
-                        item.Invoice_Number?.toLowerCase().includes(lowercasedValue) ||
-                        item.customerName?.toLowerCase().includes(lowercasedValue) ||
-                        item.statementNumber?.toLowerCase().includes(lowercasedValue) ||
-                        item.orderNumber?.toLowerCase().includes(lowercasedValue)
-                    );
-                } else if (searchType === 'invoice') {
-                    return item.Invoice_Number?.toLowerCase().includes(lowercasedValue);
-                } else if (searchType === 'customer') {
-                    return item.customerName?.toLowerCase().includes(lowercasedValue);
-                } else if (searchType === 'order') {
-                    return item.orderNumber?.toLowerCase().includes(lowercasedValue);
-                } else if (searchType === 'credit_memo') {
-                    return item.statementType?.toLowerCase() === 'credit memo' &&
-                        (item.Invoice_Number?.toLowerCase().includes(lowercasedValue) ||
-                            item.statementNumber?.toLowerCase().includes(lowercasedValue));
-                }
+if (searchType === 'all') {
+    return (
+        item.Invoice_Number?.toLowerCase().includes(lowercasedValue) ||
+        item.Name?.toLowerCase().includes(lowercasedValue) ||
+        item.Statement_Number?.toLowerCase().includes(lowercasedValue) ||
+        item.Order_Number?.toLowerCase().includes(lowercasedValue)
+    );
+}
+
                 return false;
             })
             .slice(0, 10) // Limit to 10 suggestions
