@@ -1,8 +1,8 @@
+import './aws-config.js'  // Move this to the top
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import '@cloudscape-design/global-styles/index.css'
-import './aws-config.js'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

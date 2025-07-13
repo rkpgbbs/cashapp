@@ -3,10 +3,10 @@ import { Amplify } from 'aws-amplify';
 Amplify.configure({
   API: {
     GraphQL: {
-      endpoint: 'https://mjnkxorqy5awta2pkm6yvtyz6y.appsync-api.eu-north-1.amazonaws.com/graphql',
-      region: 'eu-north-1',
+      endpoint: import.meta.env.VITE_API_ENDPOINT,
+      region: import.meta.env.VITE_API_REGION,
       defaultAuthMode: 'apiKey',
-      apiKey: 'AKIAXF5HX2CXCOJMLEFE'
+      apiKey: import.meta.env.VITE_API_KEY
     }
   }
 });
