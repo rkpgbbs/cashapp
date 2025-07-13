@@ -62,21 +62,8 @@ const Navigation = memo(({ activeHref, onFollow }) => (
   />
 ));
 
-// Search Component (Placeholder)
-const SearchComponent = memo(() => {
-  return (
-    <div style={{ minWidth: '400px', padding: '5px' }}>
-      <Autosuggest
-        value=""
-        onChange={() => {}}
-        options={[]}
-        placeholder="Search..."
-        ariaLabel="Search"
-        disabled={true}
-      />
-    </div>
-  );
-});
+// Import the SearchComponent
+import SearchComponent from './components/SearchComponent';
 
 // AppContent Component
 const AppContent = () => {

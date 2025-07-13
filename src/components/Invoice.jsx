@@ -35,29 +35,7 @@ const invoiceLineColumns = [
   { id: 'shippingCharge', header: 'Shipping Charge', cell: (item) => item["Shipping Charge"], width: '10%' },
 ];
 
-// Sample data for development
-const sampleInvoiceData = {
-  "Invoice_Number": "FR24131AEI",
-  "Statement Number": "STM-1293-H03",
-  "Statement Key": "defg-hijk-1234",
-  "Statement Type": "Invoice",
-  "Invoice Date": "15-Apr-24",
-  "Due Date": "14-Jun-24",
-  "Customer number": "FRTS63KMPA22",
-  "Account ID": 2837465928,
-  "Name": "Vixor Jabbix SARL",
-  "Original Amount": 591.36,
-  "Open Amount": 591.36,
-  "Cur": "EUR",
-  "Status": "Open",
-  "Functional Amount": 591.36,
-  "Functional Open Amount": 591.36,
-  "FX Cur": "EUR",
-  "FX Rate": 1,
-  "Net Term": 60,
-  "Country": "FR"
-};
-
+// Sample line items (we'll replace this with real data later)
 const sampleLineItems = [
   {
     "line_number": 1,
@@ -86,37 +64,55 @@ const sampleLineItems = [
 const Invoice = () => {
   const location = useLocation();
   const [invoiceData, setInvoiceData] = useState(null);
+  const [allInvoices, setAllInvoices] = useState([]);
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTabId, setActiveTabId] = useState('invoice-details');
   const navigate = useNavigate();
 
+  // Load all invoices from JSON file
   useEffect(() => {
-    const fetchInvoiceData = async () => {
-      setLoading(true);
-      
-      // Simulate API call delay
-      setTimeout(() => {
-        // Use sample data for now - this will be replaced with Amplify API calls later
-        setInvoiceData(sampleInvoiceData);
-        setInvoiceLineItems(sampleLineItems);
-        
-        // Update document title
-        document.title = `Invoice ${sampleInvoiceData.Invoice_Number}`;
-        
-        // Update URL if needed
-        const params = new URLSearchParams(location.search);
-        const invoiceNumber = params.get('invoice_number');
-        if (!invoiceNumber) {
-          navigate(`/invoice?invoice_number=${sampleInvoiceData.Invoice_Number}`, { replace: true });
+    const loadInvoiceData = async () => {
+      try {
+        const response = await fetch('/Json/Invoice.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch invoice data');
         }
-        
-        setLoading(false);
-      }, 1000);
+        const data = await response.json();
+        setAllInvoices(data);
+      } catch (error) {
+        console.error('Error loading invoice data:', error);
+      }
     };
 
-    fetchInvoiceData();
-  }, [location.search, navigate]);
+    loadInvoiceData();
+  }, []);
+
+  // Find specific invoice based on URL parameter
+  useEffect(() => {
+    if (allInvoices.length === 0) return;
+    
+    setLoading(true);
+    const params = new URLSearchParams(location.search);
+    const invoiceNumber = params.get('invoice_number');
+    
+    let selectedInvoice;
+    if (invoiceNumber) {
+      selectedInvoice = allInvoices.find(inv => inv.Invoice_Number === invoiceNumber);
+    }
+    
+    // If no invoice found or no invoice number provided, use the first one
+    if (!selectedInvoice) {
+      selectedInvoice = allInvoices[0];
+      // Update URL to reflect the selected invoice
+      navigate(`/invoice?invoice_number=${selectedInvoice.Invoice_Number}`, { replace: true });
+    }
+    
+    setInvoiceData(selectedInvoice);
+    setInvoiceLineItems(sampleLineItems); // In the future, load real line items
+    document.title = `Invoice ${selectedInvoice.Invoice_Number}`;
+    setLoading(false);
+  }, [allInvoices, location.search, navigate]);
 
   const headerComponent = useMemo(() => {
     if (!invoiceData) {
