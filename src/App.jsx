@@ -19,6 +19,7 @@ import Link from '@cloudscape-design/components/link';
 import TextFilter from '@cloudscape-design/components/text-filter';
 import Header from '@cloudscape-design/components/header';
 import Pagination from '@cloudscape-design/components/pagination';
+import SearchComponent from './components/SearchComponent';
 
 // Lazy load components
 const Dashboard = lazy(() => import('./components/Dashboard'));
@@ -61,9 +62,6 @@ const Navigation = memo(({ activeHref, onFollow }) => (
     items={navigationItems}
   />
 ));
-
-// Import the SearchComponent
-import SearchComponent from './components/SearchComponent';
 
 // AppContent Component
 const AppContent = () => {
