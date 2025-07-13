@@ -35,7 +35,74 @@ const invoiceLineColumns = [
   { id: 'shippingCharge', header: 'Shipping Charge', cell: (item) => item["Shipping Charge"], width: '10%' },
 ];
 
-// Sample line items (we'll replace this with real data later)
+// Fallback sample data for invoices
+const sampleInvoices = [
+  {
+    "Invoice_Number": "FR24131AEI",
+    "Statement Number": "STM-1293-H03",
+    "Statement Key": "defg-hijk-1234",
+    "Statement Type": "Invoice",
+    "Invoice Date": "15-Apr-24",
+    "Due Date": "14-Jun-24",
+    "Customer number": "FRTS63KMPA22",
+    "Account ID": 2837465928,
+    "Name": "Vixor Jabbix SARL",
+    "Original Amount": 591.36,
+    "Open Amount": 591.36,
+    "Cur": "EUR",
+    "Status": "Open",
+    "Functional Amount": 591.36,
+    "Functional Open Amount": 591.36,
+    "FX Cur": "EUR",
+    "FX Rate": 1,
+    "Net Term": 60,
+    "Country": "FR"
+  },
+  {
+    "Invoice_Number": "DE24464BEI",
+    "Statement Number": "STM-1294-I03",
+    "Statement Key": "hijk-lmno-5678",
+    "Statement Type": "Invoice",
+    "Invoice Date": "20-May-24",
+    "Due Date": "19-Jun-24",
+    "Customer number": "DELN92QWPO83",
+    "Account ID": 3847569201,
+    "Name": "Klixx Womblex GmbH",
+    "Original Amount": 546,
+    "Open Amount": 546,
+    "Cur": "EUR",
+    "Status": "Open",
+    "Functional Amount": 546,
+    "Functional Open Amount": 546,
+    "FX Cur": "EUR",
+    "FX Rate": 1,
+    "Net Term": 30,
+    "Country": "DE"
+  },
+  {
+    "Invoice_Number": "CA24797HYT",
+    "Statement Number": "STM-1295-J03",
+    "Statement Key": "lmno-pqrs-9012",
+    "Statement Type": "Credit Memo",
+    "Invoice Date": "24-Jun-24",
+    "Due Date": "",
+    "Customer number": "CABN92MNBA27",
+    "Account ID": 9029184756,
+    "Name": "Jixxle Yazzex Corp",
+    "Original Amount": -248.4,
+    "Open Amount": -248.4,
+    "Cur": "CAD",
+    "Status": "Open",
+    "Functional Amount": -248.4,
+    "Functional Open Amount": -248.4,
+    "FX Cur": "CAD",
+    "FX Rate": 1,
+    "Net Term": 60,
+    "Country": "CA"
+  }
+];
+
+// Sample line items
 const sampleLineItems = [
   {
     "line_number": 1,
@@ -69,83 +136,56 @@ const Invoice = () => {
   const [loading, setLoading] = useState(true);
   const [activeTabId, setActiveTabId] = useState('invoice-details');
   const navigate = useNavigate();
+  const [dataSource, setDataSource] = useState('loading');
 
   // Load all invoices from JSON file
   useEffect(() => {
+    console.log("Invoice: Loading invoice data");
     const loadInvoiceData = async () => {
       try {
         // Try multiple possible paths for the JSON file
-        const paths = ['./Json/Invoice.json', '/Json/Invoice.json', '../Json/Invoice.json'];
+        const paths = [
+          './Json/Invoice.json', 
+          '/Json/Invoice.json', 
+          '../Json/Invoice.json',
+          'Json/Invoice.json',
+          window.location.origin + '/Json/Invoice.json'
+        ];
+        
+        console.log("Invoice: Will try these paths:", paths);
         let data = null;
         
         for (const path of paths) {
           try {
+            console.log(`Invoice: Attempting to fetch from ${path}`);
             const response = await fetch(path);
+            console.log(`Invoice: Fetch response status: ${response.status}`);
+            
             if (response.ok) {
               data = await response.json();
-              console.log(`Successfully loaded invoice data from ${path}`);
+              console.log(`Invoice: Successfully loaded invoice data from ${path}, found ${data.length} records`);
+              setDataSource('json');
               break;
             }
           } catch (e) {
-            console.log(`Failed to load from ${path}: ${e.message}`);
+            console.log(`Invoice: Failed to load from ${path}: ${e.message}`);
           }
         }
         
-        if (data) {
+        if (data && data.length > 0) {
+          console.log("Invoice: Setting real data from JSON");
           setAllInvoices(data);
         } else {
           // Fallback to sample data if JSON can't be loaded
-          console.warn('Using fallback sample data');
-          setAllInvoices([
-            {
-              "Invoice_Number": "FR24131AEI",
-              "Statement Number": "STM-1293-H03",
-              "Statement Key": "defg-hijk-1234",
-              "Statement Type": "Invoice",
-              "Invoice Date": "15-Apr-24",
-              "Due Date": "14-Jun-24",
-              "Customer number": "FRTS63KMPA22",
-              "Account ID": 2837465928,
-              "Name": "Vixor Jabbix SARL",
-              "Original Amount": 591.36,
-              "Open Amount": 591.36,
-              "Cur": "EUR",
-              "Status": "Open",
-              "Functional Amount": 591.36,
-              "Functional Open Amount": 591.36,
-              "FX Cur": "EUR",
-              "FX Rate": 1,
-              "Net Term": 60,
-              "Country": "FR"
-            }
-          ]);
+          console.warn('Invoice: Using fallback sample data');
+          setAllInvoices(sampleInvoices);
+          setDataSource('sample');
         }
       } catch (error) {
-        console.error('Error loading invoice data:', error);
+        console.error('Invoice: Error loading invoice data:', error);
         // Fallback to sample data
-        setAllInvoices([
-          {
-            "Invoice_Number": "FR24131AEI",
-            "Statement Number": "STM-1293-H03",
-            "Statement Key": "defg-hijk-1234",
-            "Statement Type": "Invoice",
-            "Invoice Date": "15-Apr-24",
-            "Due Date": "14-Jun-24",
-            "Customer number": "FRTS63KMPA22",
-            "Account ID": 2837465928,
-            "Name": "Vixor Jabbix SARL",
-            "Original Amount": 591.36,
-            "Open Amount": 591.36,
-            "Cur": "EUR",
-            "Status": "Open",
-            "Functional Amount": 591.36,
-            "Functional Open Amount": 591.36,
-            "FX Cur": "EUR",
-            "FX Rate": 1,
-            "Net Term": 60,
-            "Country": "FR"
-          }
-        ]);
+        setAllInvoices(sampleInvoices);
+        setDataSource('sample');
       }
     };
 
@@ -154,24 +194,34 @@ const Invoice = () => {
 
   // Find specific invoice based on URL parameter
   useEffect(() => {
-    if (allInvoices.length === 0) return;
+    if (allInvoices.length === 0) {
+      console.log("Invoice: No invoices loaded yet, waiting...");
+      return;
+    }
     
+    console.log(`Invoice: Finding invoice from ${allInvoices.length} loaded invoices`);
     setLoading(true);
+    
     const params = new URLSearchParams(location.search);
     const invoiceNumber = params.get('invoice_number');
+    console.log(`Invoice: Looking for invoice number: ${invoiceNumber}`);
     
     let selectedInvoice;
     if (invoiceNumber) {
       selectedInvoice = allInvoices.find(inv => inv.Invoice_Number === invoiceNumber);
+      console.log(`Invoice: Found matching invoice: ${selectedInvoice ? 'Yes' : 'No'}`);
     }
     
     // If no invoice found or no invoice number provided, use the first one
     if (!selectedInvoice) {
       selectedInvoice = allInvoices[0];
+      console.log(`Invoice: Using first invoice: ${selectedInvoice.Invoice_Number}`);
+      
       // Update URL to reflect the selected invoice
       navigate(`/invoice?invoice_number=${selectedInvoice.Invoice_Number}`, { replace: true });
     }
     
+    console.log(`Invoice: Setting selected invoice: ${selectedInvoice.Invoice_Number}`);
     setInvoiceData(selectedInvoice);
     setInvoiceLineItems(sampleLineItems); // In the future, load real line items
     document.title = `Invoice ${selectedInvoice.Invoice_Number}`;
@@ -193,7 +243,9 @@ const Invoice = () => {
     return (
       <Header variant="h1">
         <SpaceBetween direction="horizontal" size="l">
-          <Box fontSize="heading-xl" fontWeight="bold">Invoice</Box>
+          <Box fontSize="heading-xl" fontWeight="bold">
+            Invoice {dataSource === 'sample' ? "(Sample Data)" : ""}
+          </Box>
           <Box 
             fontSize="heading-l"
             fontWeight="normal"
@@ -206,7 +258,7 @@ const Invoice = () => {
         </SpaceBetween>
       </Header>
     );
-  }, [invoiceData]);
+  }, [invoiceData, dataSource]);
 
   const customerInfoComponent = useMemo(() => {
     if (!invoiceData) return null;
