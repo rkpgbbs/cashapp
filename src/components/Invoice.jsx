@@ -15,29 +15,31 @@ const client = generateClient();
 
 // Column definitions (no changes needed here)
 const invoiceHeaderColumns = [
-  { id: 'StatementType', header: 'Statement Type', cell: (item) => item.statementType, width: '10%' },
-  { id: 'invoiceDate', header: 'Invoice Date', cell: (item) => item.invoiceDate, width: '12%' },
-  { id: 'dueDate', header: 'Due Date', cell: (item) => item.dueDate, width: '15%' },
-  { id: 'originalAmount', header: 'Original Amount', cell: (item) => item.originalAmount, width: '15%' },
-  { id: 'openAmount', header: 'Open Amount', cell: (item) => item.openAmount, width: '12%' },
-  { id: 'currency', header: 'Cur', cell: (item) => item.currency, width: '8%' },
-  { id: 'functionalAmount', header: 'Functional Amount', cell: (item) => item.functionalAmount, width: '13%' },
-  { id: 'functionalOpenAmount', header: 'Functional Open Amount', cell: (item) => item.functionalOpenAmount, width: '15%' },
-  { id: 'fxCur', header: 'Fx Cur', cell: (item) => item.fxCur, width: '8%' },
-  { id: 'fxRate', header: 'Fx Rate', cell: (item) => item.fxRate, width: '8%' },
+  { id: 'StatementType', header: 'Statement Type', cell: (item) => item.Statement_Type, width: '10%' },
+  { id: 'invoiceDate', header: 'Invoice Date', cell: (item) => item.Invoice_Date, width: '12%' },
+  { id: 'dueDate', header: 'Due Date', cell: (item) => item.Due_Date, width: '15%' },
+  { id: 'originalAmount', header: 'Original Amount', cell: (item) => item.Original_Amount, width: '15%' },
+  { id: 'openAmount', header: 'Open Amount', cell: (item) => item.Open_Amount, width: '12%' },
+  { id: 'currency', header: 'Cur', cell: (item) => item.Cur, width: '8%' },
+  { id: 'functionalAmount', header: 'Functional Amount', cell: (item) => item.Functional_Amount, width: '13%' },
+  { id: 'functionalOpenAmount', header: 'Functional Open Amount', cell: (item) => item.Functional_Open_Amount, width: '15%' },
+  { id: 'fxCur', header: 'Fx Cur', cell: (item) => item.FX_Cur, width: '8%' },
+  { id: 'fxRate', header: 'Fx Rate', cell: (item) => item.FX_Rate, width: '8%' },
 ];
 
+
 const invoiceLineColumns = [
-  { id: 'lineNumber', header: 'Line Number', cell: (item) => item.line_number, width: '8%' },
-  { id: 'orderNumber', header: 'Order Number', cell: (item) => item.order_number, width: '12%' },
-  { id: 'productDescription', header: 'Product Description', cell: (item) => item.product_description, width: '20%' },
-  { id: 'quantity', header: 'Quantity', cell: (item) => item.quantity, width: '8%' },
-  { id: 'unitPrice', header: 'Unit Price', cell: (item) => item.unit_price, width: '10%' },
-  { id: 'principalAmount', header: 'Principal Amount', cell: (item) => item.principalAmount, width: '12%' },
-  { id: 'discount', header: 'Discount', cell: (item) => item.discount, width: '10%' },
-  { id: 'tax', header: 'Tax', cell: (item) => item.tax, width: '10%' },
-  { id: 'shippingCharge', header: 'Shipping Charge', cell: (item) => item.shippingCharge, width: '10%' },
+  { id: 'lineNumber', header: 'Line Number', cell: (item) => item.Line_Number, width: '8%' },
+  { id: 'orderNumber', header: 'Order Number', cell: (item) => item.Order_Number, width: '12%' },
+  { id: 'productDescription', header: 'Product Description', cell: (item) => item.Product_Description, width: '20%' },
+  { id: 'quantity', header: 'Quantity', cell: (item) => item.Quantity, width: '8%' },
+  { id: 'unitPrice', header: 'Unit Price', cell: (item) => item.Unit_Price, width: '10%' },
+  { id: 'principalAmount', header: 'Principal Amount', cell: (item) => item.Principal_Amount, width: '12%' },
+  { id: 'discount', header: 'Discount', cell: (item) => item.Discount, width: '10%' },
+  { id: 'tax', header: 'Tax', cell: (item) => item.Tax, width: '10%' },
+  { id: 'shippingCharge', header: 'Shipping Charge', cell: (item) => item.Shipping_Charge, width: '10%' },
 ];
+
 
 // Sample line items (we'll replace this with real data later)
 const sampleLineItems = [
@@ -70,25 +72,48 @@ const listInvoicesQuery = `
   query ListInvoices {
     listInvoices {
       items {
+        Country
         Invoice_Number
-        statementNumber
-        statementKey
-        statementType
-        invoiceDate
-        dueDate
-        originalAmount
-        openAmount
-        currency
-        status
-        customerNumber
-        accountID
-        customerName
-        country
-        netTerm
+        Statement_Number
+        Statement_Key
+        Statement_Type
+        Invoice_Date
+        Due_Date
+        Order_Number
+        Customer_Number
+        Account_ID
+        Name
+        Original_Amount
+        Open_Amount
+        Cur
+        Status
+        Functional_Amount
+        Functional_Open_Amount
+        FX_Cur
+        FX_Rate
+        Net_Term
+        Recept_Application
+        CM_Offset
+        Adjustment_Amount
+        Direct_Debit
+        Refund
+        Principal_Amount
+        Discount
+        Tax
+        Shipping_Charge
+        Shipping_Discount
+        Tax_Discount
+        Promotional_Amount
+        Associated_Invoice
+        Corrected_Invoice
+        Tax_Rate
+        Discount_Percentage
       }
     }
   }
 `;
+
+
 
 const getInvoiceQuery = `
   query GetInvoice($Invoice_Number: String!) {
